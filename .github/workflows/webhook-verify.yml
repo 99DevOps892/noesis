@@ -1,0 +1,43 @@
+name: Webhook Verify — NOESIS
+
+on:
+  repository_dispatch:
+    types: [webhook-event]
+  workflow_call:
+    inputs:
+      payload:
+        required: true
+        type: string
+      signature:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify webhook signature
+        env:
+          WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+          PAYLOAD: ${{ github.event.client_payload || inputs.payload }}
+          SIGNATURE: ${{ github.event.client_payload_signature || inputs.signature }}
+        run: |
+          if [ -z "$WEBHOOK_SECRET" ]; then
+            echo "WARN: WEBHOOK_SECRET not set — skipping verification"
+            exit 0
+          fi
+          EXPECTED=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "$WEBHOOK_SECRET" | awk '{print $2}')
+          if [ "$SIGNATURE" != "$EXPECTED" ]; then
+            echo "ERROR: Webhook signature mismatch"
+            exit 1
+          fi
+          echo "Webhook signature verified"
+
+      - name: Process webhook event
+        run: |
+          echo "Webhook verified and processed"

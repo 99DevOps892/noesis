@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="NOESIS — Knowledge & Reasoning Engine for the STA Ecosystem">
+  <meta name="theme-color" content="#fafbfc">
+  <title>NOESIS — Knowledge & Reasoning Engine</title>
+  <link rel="manifest" href="../manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header__brand">
+      <h1 class="header__title">NOESIS <span class="header__sub">— Knowledge & Reasoning Engine</span></h1>
+      <p class="header__tagline">STA Knowledge Base &middot; RAG Search &middot; Syllogistic Reasoning</p>
+    </div>
+    <div class="header__status">
+      <span class="header__clock" id="clock"></span>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- Stats Bar -->
+    <section class="stats-bar" id="statsBar">
+      <div class="stat-card">
+        <span class="stat-card__label">Total Entries</span>
+        <span class="stat-card__value" id="statTotal">—</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card__label">Namespaces</span>
+        <span class="stat-card__value" id="statNamespaces">8</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card__label">Embedding Coverage</span>
+        <span class="stat-card__value" id="statEmbeddings">—</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card__label">Last Refresh</span>
+        <span class="stat-card__value" id="statRefresh">—</span>
+      </div>
+    </section>
+
+    <div class="dashboard-grid">
+      <!-- Knowledge Base Browser -->
+      <section class="panel">
+        <div class="panel__header">
+          <h2 class="panel__title">Knowledge Base</h2>
+          <div class="panel__controls">
+            <select class="select-input" id="namespaceFilter">
+              <option value="all">All Namespaces</option>
+              <option value="properties">properties</option>
+              <option value="tenants">tenants</option>
+              <option value="payments">payments</option>
+              <option value="market">market</option>
+              <option value="ceo">ceo</option>
+              <option value="system">system</option>
+              <option value="prospects">prospects</option>
+              <option value="compliance">compliance</option>
+            </select>
+          </div>
+        </div>
+        <!-- Namespace chips -->
+        <div class="namespace-chips" id="namespaceChips"></div>
+        <!-- Entries list -->
+        <div class="knowledge-list" id="knowledgeList">
+          <p class="knowledge-list__empty">Loading knowledge entries…</p>
+        </div>
+        <div class="panel__footer">
+          <button class="btn" id="loadMoreBtn">Load More</button>
+          <span class="panel__info" id="entryCount"></span>
+        </div>
+      </section>
+
+      <!-- Search / Query Interface -->
+      <section class="panel">
+        <div class="panel__header">
+          <h2 class="panel__title">RAG Search</h2>
+        </div>
+        <div class="search-interface">
+          <div class="search-box">
+            <input type="text" class="search-input search-input--lg" id="ragQuery" placeholder="Ask a question about your knowledge base…">
+            <select class="select-input" id="ragNamespace">
+              <option value="">All Namespaces</option>
+              <option value="properties">properties</option>
+              <option value="tenants">tenants</option>
+              <option value="payments">payments</option>
+              <option value="market">market</option>
+              <option value="ceo">ceo</option>
+              <option value="system">system</option>
+              <option value="prospects">prospects</option>
+              <option value="compliance">compliance</option>
+            </select>
+            <button class="btn btn--primary" id="ragSearchBtn">Search</button>
+          </div>
+          <div class="search-results" id="ragResults">
+            <p class="search-results__empty">Enter a query to search the knowledge base</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Syllogistic Reasoning Panel -->
+      <section class="panel panel--wide">
+        <div class="panel__header">
+          <h2 class="panel__title">Syllogistic Reasoning</h2>
+          <div class="panel__controls">
+            <button class="btn btn--sm" id="loadExampleBtn">Load Example</button>
+          </div>
+        </div>
+        <div class="reasoning-panel">
+          <div class="reasoning-inputs">
+            <div class="reasoning-field">
+              <label class="reasoning-label">Major Premise</label>
+              <textarea class="reasoning-textarea" id="majorPremise" placeholder="e.g. All 3-bedroom apartments in Nairobi rent for 25K-45K KES"></textarea>
+            </div>
+            <div class="reasoning-field">
+              <label class="reasoning-label">Minor Premise</label>
+              <textarea class="reasoning-textarea" id="minorPremise" placeholder="e.g. Property X is a 3-bedroom apartment in Nairobi"></textarea>
+            </div>
+            <div class="reasoning-field">
+              <label class="reasoning-label">Question</label>
+              <input type="text" class="search-input" id="reasoningQuestion" placeholder="e.g. What is the expected rent range?">
+            </div>
+            <button class="btn btn--primary" id="reasonBtn">Derive Conclusion</button>
+          </div>
+          <div class="reasoning-output" id="reasoningOutput">
+            <div class="reasoning-output__empty">
+              <p>Enter premises and a question to perform syllogistic reasoning.</p>
+              <p class="reasoning-hint">The engine will search the knowledge base for supporting evidence and derive a conclusion with confidence scoring.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Recent Entries -->
+      <section class="panel panel--wide">
+        <div class="panel__header">
+          <h2 class="panel__title">Recent Knowledge Entries</h2>
+        </div>
+        <div class="recent-entries" id="recentEntries">
+          <p class="recent-entries__empty">Loading recent entries…</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>NOESIS &middot; STA-006 &middot; Syllogism Technology Africa</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/knowledge.js"></script>
+  <script src="js/reasoning.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      Clock.init();
+      Knowledge.init();
+      Reasoning.init();
+      Dashboard.init();
+    });
+  </script>
+</body>
+</html>

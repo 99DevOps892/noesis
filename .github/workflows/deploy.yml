@@ -1,0 +1,63 @@
+name: Deploy NOESIS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Inject Supabase config from secrets
+        run: |
+          python3 - <<'EOF'
+          import os
+          path = "app/js/config.js"
+          src = open(path, encoding="utf-8").read()
+          src = src.replace(
+            "'https://YOUR_PROJECT.supabase.co'",
+            "'" + os.environ["SUPABASE_URL"] + "'",
+          )
+          src = src.replace(
+            "'YOUR_ANON_KEY_HERE'",
+            "'" + os.environ["SUPABASE_ANON_KEY"] + "'",
+          )
+          open(path, "w", encoding="utf-8").write(src)
+          print(path + " updated")
+          EOF
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify deployment
+        run: |
+          sleep 10
+          curl -sf -o /dev/null -w "%{http_code}" \
+            "https://99devops892.github.io/noesis/" || echo "Pages not yet live"

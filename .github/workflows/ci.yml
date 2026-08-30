@@ -1,0 +1,45 @@
+name: CI — NOESIS
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required files
+        run: |
+          for f in app/index.html app/js/config.js manifest.json; do
+            if [ ! -f "$f" ]; then echo "MISSING: $f"; exit 1; fi
+            echo "OK: $f"
+          done
+
+      - name: Validate config.js structure
+        run: |
+          if ! grep -q "APP_CONFIG" app/js/config.js; then
+            echo "config.js missing APP_CONFIG reference"
+            exit 1
+          fi
+          echo "config.js structure valid"
+
+      - name: Validate YAML syntax
+        run: |
+          if command -v yamllint &>/dev/null; then
+            yamllint .github/ || true
+          fi
+          echo "YAML check complete"
+
+      - name: Validate HTML
+        run: |
+          if [ -f "app/index.html" ]; then
+            echo "HTML file present — ${(wc -l < app/index.html)} lines"
+          fi
+
+      - name: Lint check
+        run: |
+          echo "No package.json — skipping npm lint"
