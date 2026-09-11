@@ -1,0 +1,2 @@
+# Orchestrator Operating Rules
+Planner: read-only, plans + maps. Database agent: generates migrations, runs local/staging only, no prod destructive without approval. Security: audits RLS/grants, no broad grants. App agent: updates code after schema approval, no silent DDL. Observability: monitors errors/perf, never deletes audit. Founder gate required for prod DDL, data moves, RLS, finance, auth, cross-app refactors. Secrets via env names only (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, etc.), never committed.

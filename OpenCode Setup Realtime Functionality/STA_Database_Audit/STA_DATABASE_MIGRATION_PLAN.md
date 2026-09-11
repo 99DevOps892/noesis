@@ -1,0 +1,2 @@
+# Migration Plan (incremental, approval-gated)
+A Inventory DONE. B Freeze unplanned schema edits. C supabase db pull to establish truth. D Baseline backup. E Deploy sta_core_organization_schema.sql to NEW org project. F Register Mwarokin + Mali in applications table (manual, approved seed). G Keep shared SQL as library. H Repoint FKs (nullable org/app cols, backfill). I RLS test on staging. J Update app code + types. K Validate (schema/data/RLS/API/realtime/finance regression). L local->staging->prod. Never DROP, deprecate first.

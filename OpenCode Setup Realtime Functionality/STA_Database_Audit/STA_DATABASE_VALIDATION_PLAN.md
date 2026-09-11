@@ -1,0 +1,2 @@
+# Validation Plan
+1 Schema diff (expected vs actual). 2 Row counts before/after. 3 FK integrity. 4 RLS tests per actor (anon/auth/tenant/landlord/admin, cross-org denied, cross-app denied). 5 API regression (leases/payments/union loans). 6 Realtime auth check. 7 Finance reconciliation (rent sums, union balances). 8 Rollback drill. Pass criteria: zero data loss, zero cross-tenant read, all approved writes succeed.
